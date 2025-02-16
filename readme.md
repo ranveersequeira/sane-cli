@@ -1,4 +1,3 @@
-Here’s the entire `README.md` file in one place for your CLI tool setup, with the necessary features and some witty jokes.
 
 ### `README.md`
 
