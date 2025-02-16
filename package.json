@@ -1,5 +1,5 @@
 {
-  "name": "vite-react-cli",
+  "name": "vite-sane-cli",
   "version": "1.0.0",
   "type": "module",
   "main": "index.js",
@@ -10,6 +10,10 @@
   "author": "",
   "license": "ISC",
   "description": "",
+ "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ranveersequeira/sane-cli.git"
+  },
   "dependencies": {
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
