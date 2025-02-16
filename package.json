@@ -3,7 +3,13 @@
   "version": "1.0.2",
   "type": "module",
   "main": "index.js",
+  "scripts": {},
+  "bin": {
+    "vite-sane": "./index.js"
+  },
   "scripts": {
+    "postinstall": "npm run prepare",
+    "prepare": "chmod +x ./index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -20,6 +26,7 @@
     "execa": "^9.5.2",
     "fs-extra": "^11.3.0",
     "inquirer": "^12.4.2",
-    "ora": "^8.2.0"
+    "ora": "^8.2.0",
+    "vite": "^4.0.0"
   }
 }
