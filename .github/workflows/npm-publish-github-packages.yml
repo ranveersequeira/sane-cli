@@ -1,0 +1,45 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+      - patch
+      - minor
+    paths:
+      - '**/package.json'
+      - '**/package-lock.json'
+      - '**/yarn.lock'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Change to the desired Node.js version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Determine version type
+        id: version
+        run: |
+          VERSION_TYPE=$(npm version | grep -oP '^\s*"(patch|minor|major)"')
+          echo "Version type is $VERSION_TYPE"
+          echo "version_type=$VERSION_TYPE" >> $GITHUB_ENV
+
+      - name: Publish to npm (for patch, minor, and major)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/patch' || github.ref == 'refs/heads/minor'
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Skip npm publish for non-relevant branches
+        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/patch' && github.ref != 'refs/heads/minor'
+        run: echo "Skipping npm publish, no relevant version change."
