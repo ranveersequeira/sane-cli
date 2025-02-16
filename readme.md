@@ -50,7 +50,7 @@ Before running this CLI tool, make sure you have the following installed:
    To generate a new React project, simply run:
 
    ```bash
-   create-react-project <your-project-name>
+   vite-sane-cli <your-project-name>
    ```
 
    If no project name is provided, it will default to `my-app`.
