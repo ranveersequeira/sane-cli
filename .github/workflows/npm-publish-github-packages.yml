@@ -3,9 +3,10 @@ name: Publish to npm
 on:
   push:
     branches:
-      - main
-      - patch
-      - minor
+      - test
+      # - main
+      # - patch
+      # - minor
     paths:
       - '**/package.json'
       - '**/package-lock.json'
