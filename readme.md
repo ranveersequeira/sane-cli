@@ -1,6 +1,6 @@
 ---
 
-# Vite Sane CLI
+# Vite Sane CLI (Node >= 18.20.4)
 
 Welcome to **Vite Sane CLI** – the tool for developers who are bored and scared to start a new step for their React application! Starting a new project can be terrifying (trust me, I get it). You sit there, wondering, "What am I getting myself into?" But fear not! With my sane defaults (and, let's be honest, **questionable** experience in the industry 😅), I've created this CLI to help you get up and running with a React app and start working **immediately**.
 
