@@ -3,82 +3,114 @@ import inquirer from "inquirer";
 import { execa } from "execa";
 import fs from "fs";
 import path from "path";
+import chalk from "chalk";
+import ora from "ora";
 
-// Helper function to execute shell commands
+const jokes = [
+  "Why do programmers prefer dark mode? Because light attracts bugs!",
+  "Why did the developer go broke? Because he used up all his cache!",
+  "Why do programmers always mix up Christmas and Halloween? Because Oct 31 == Dec 25!",
+  "Why was the JavaScript developer sad? Because he didn't Node how to Express himself!",
+  "Why did the React component feel lost? Because it didn't know its state in life!",
+];
+
+function getRandomJoke() {
+  return jokes[Math.floor(Math.random() * jokes.length)];
+}
+
 async function runCommand(command, args, cwd) {
   try {
     await execa(command, args, { stdio: "inherit", cwd });
   } catch (error) {
-    console.error(`❌ Error running ${command} ${args.join(" ")}:`, error.message);
+    console.error(chalk.red(`❌ Error running ${command} ${args.join(" ")}:`), error.message);
     process.exit(1);
   }
 }
 
-// Main function to set up the project
 async function createProject() {
-  console.log("\n🚀 Welcome to Vite React CLI! with sane options");
+  console.log(chalk.bold.cyan("\n🚀 Welcome to the Ultimate Vite React CLI! Let's build something awesome!\n"));
+  console.log(chalk.yellow(getRandomJoke()));
+  console.log("\n");
 
-  // Ask for project name
-  const { projectName } = await inquirer.prompt([
+  const { projectName, useTypeScript } = await inquirer.prompt([
     { type: "input", name: "projectName", message: "Enter project name:", default: "my-vite-app" },
+    { type: "confirm", name: "useTypeScript", message: "Do you want to use TypeScript?", default: true },
   ]);
 
   const projectPath = path.join(process.cwd(), projectName);
 
-  // Create project with Vite
-  console.log(`\n📦 Creating Vite React project: ${projectName}`);
-  await runCommand("npm", ["create", "vite@latest", projectName, "--", "--template", "react"]);
+  const spinner = ora("Creating Vite React project...").start();
+  await runCommand("npm", [
+    "create",
+    "vite@latest",
+    projectName,
+    "--",
+    "--template",
+    useTypeScript ? "react-ts" : "react",
+  ]);
+  const fileExtension = useTypeScript ? "tsx" : "jsx";
+  spinner.succeed("Vite React project created successfully!");
 
-  // Move into project folder
   process.chdir(projectPath);
 
-  // Install dependencies
-  console.log("\n📥 Installing dependencies...");
+  spinner.start("Installing dependencies...");
   await runCommand("npm", ["install"]);
+  spinner.succeed("Dependencies installed successfully!");
 
-  // Install React Router DOM by default
-  console.log("\n📦 Installing React Router DOM...");
-  await runCommand("npm", ["install", "react-router-dom"]);
+  spinner.start("Installing commonly used libraries...");
+  await runCommand("npm", ["install", "axios", "react-router-dom", "date-fns", "lodash"]);
+  spinner.succeed("Common libraries installed successfully!");
 
-  // Ask if Tailwind should be installed
+
   const { installTailwind } = await inquirer.prompt([
-    { type: "confirm", name: "installTailwind", message: "Do you want to install Tailwind CSS? If you're a human you should", default: true },
+    { type: "confirm", name: "installTailwind", message: "Do you want to install Tailwind CSS?", default: true },
   ]);
 
   if (installTailwind) {
-    console.log("\n🎨 Installing Tailwind CSS...");
+    spinner.start("Installing and configuring Tailwind CSS...");
     await runCommand("npm", ["install", "tailwindcss", "@tailwindcss/vite"]);
 
-    // Update Tailwind config
-    console.log("\n🛠 Configuring Tailwind...");
-    fs.appendFileSync("vite.config.js",
-      `import { defineConfig } from 'vite'\n
-    import tailwindcss from '@tailwindcss/vite'\n
-    export default defineConfig({
-  plugins: [
-    tailwindcss(),
-react()
+    const tailwindConfig = `/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
-})` );
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}`;
 
+    fs.writeFileSync("tailwind.config.js", tailwindConfig);
 
-    // Update index.css
-    console.log("\n🎨 Updating styles...");
-    fs.writeFileSync(
-      "src/index.css",
-      `@import "tailwindcss";
-      @tailwind components;
-      @tailwind utilities;`
-    );
+    const cssContent = `
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;`;
 
+    fs.writeFileSync("src/index.css", cssContent);
 
-    console.log("\n✅ Tailwind CSS setup complete!");
+    // Update Vite config
+    const viteConfig = `import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react(),
+    tailwindcss(),
+],
+})`;
+
+    fs.writeFileSync("vite.config.js", viteConfig);
+
+    spinner.succeed("Tailwind CSS installed and configured successfully!");
   } else {
-    console.log("\n😱 It’s helpful. If you remove it, you might die—especially in CSS.");
-    console.log("\nSad there is no going back now. Go old school and rtfd yourself.");
+    console.log(chalk.red("\n😱 Oh no! You're choosing to die by a thousand inline styles. May the CSS gods have mercy on your soul!"));
   }
 
-  // Ask which component library to install
   const { componentLibrary } = await inquirer.prompt([
     {
       type: "list",
@@ -89,37 +121,31 @@ react()
   ]);
 
   if (componentLibrary === "Ant Design 5") {
-    console.log("\n📦 Installing Ant Design...");
+    spinner.start("Installing Ant Design...");
     await runCommand("npm", ["install", "antd"]);
+    spinner.succeed("Ant Design installed successfully!");
   } else if (componentLibrary === "MUI") {
-    console.log("\n📦 Installing MUI...");
+    spinner.start("Installing MUI...");
     await runCommand("npm", ["install", "@mui/material", "@emotion/react", "@emotion/styled"]);
+    spinner.succeed("MUI installed successfully!");
   }
 
-  // Ask if Redux Toolkit should be installed
   const { installRedux } = await inquirer.prompt([
     { type: "confirm", name: "installRedux", message: "Do you want to install Redux Toolkit?", default: true },
   ]);
 
   if (installRedux) {
-    console.log("\n📦 Installing Redux Toolkit...");
+    spinner.start("Installing and configuring Redux Toolkit...");
     await runCommand("npm", ["install", "@reduxjs/toolkit", "react-redux"]);
 
-    console.log("\n🛠 Setting up Redux...");
-    fs.mkdirSync("src/store", { recursive: true });
-    fs.writeFileSync(
-      "src/store/store.js",
-      `import { configureStore } from "@reduxjs/toolkit";
+    const storeContent = `import { configureStore } from "@reduxjs/toolkit";
 import exampleSlice from "./exampleSlice";
 
 export const store = configureStore({
   reducer: { example: exampleSlice },
-});`
-    );
+});`;
 
-    fs.writeFileSync(
-      "src/store/exampleSlice.js",
-      `import { createSlice } from "@reduxjs/toolkit";
+    const sliceContent = `import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = { value: 0 };
 
@@ -133,13 +159,15 @@ const exampleSlice = createSlice({
 });
 
 export const { increment, decrement } = exampleSlice.actions;
-export default exampleSlice.reducer;`
-    );
+export default exampleSlice.reducer;`;
 
-    console.log("\n✅ Redux Toolkit setup complete!");
+    fs.mkdirSync("src/store", { recursive: true });
+    fs.writeFileSync(useTypeScript ? "src/store/store.ts" : "src/store/store.js", storeContent);
+    fs.writeFileSync(useTypeScript ? "src/store/exampleSlice.ts" : "src/store/exampleSlice.js", sliceContent);
+
+    spinner.succeed("Redux Toolkit installed and configured successfully!");
   }
 
-  // Ask for project type to choose between React Query or SWR
   const { projectType } = await inquirer.prompt([
     {
       type: "list",
@@ -149,72 +177,198 @@ export default exampleSlice.reducer;`
     },
   ]);
 
-  let installDataFetching = false;
-  let dataFetchingLibrary = "None";
-
   if (projectType === "Large") {
-    const { useDataFetching } = await inquirer.prompt([
+    const { dataFetchingLibrary } = await inquirer.prompt([
       {
         type: "list",
-        name: "useDataFetching",
+        name: "dataFetchingLibrary",
         message: "Choose a data fetching library:",
         choices: ["React Query", "SWR", "None"],
       },
     ]);
 
-    dataFetchingLibrary = useDataFetching;
-    installDataFetching = useDataFetching !== "None";
-  }
-
-  // Install React Query or SWR based on user choice
-  if (installDataFetching) {
     if (dataFetchingLibrary === "React Query") {
-      console.log("\n📦 Installing React Query...");
+      spinner.start("Installing and configuring React Query...");
       await runCommand("npm", ["install", "@tanstack/react-query"]);
       await runCommand("npm", ["install", "-D", "@tanstack/eslint-plugin-query"]);
 
-      console.log("\n🛠 Setting up React Query...");
-      fs.mkdirSync("src/hooks", { recursive: true });
-      fs.writeFileSync(
-        "src/hooks/useFetchData.js",
-        `import { useQuery } from "react-query";
+      const hookContent = `import { useQuery } from "@tanstack/react-query";
 
 export function useFetchData(queryKey, fetchData) {
   return useQuery(queryKey, fetchData);
-}`
-      );
+}`;
 
-      console.log("\n✅ React Query setup complete!");
+      fs.mkdirSync("src/hooks", { recursive: true });
+      fs.writeFileSync(useTypeScript ? "src/hooks/useFetchData.ts" : "src/hooks/useFetchData.js", hookContent);
+
+      spinner.succeed("React Query installed and configured successfully!");
     } else if (dataFetchingLibrary === "SWR") {
-      console.log("\n📦 Installing SWR...");
+      spinner.start("Installing and configuring SWR...");
       await runCommand("npm", ["install", "swr"]);
 
-      console.log("\n🛠 Setting up SWR...");
-      fs.mkdirSync("src/hooks", { recursive: true });
-      fs.writeFileSync(
-        "src/hooks/useFetchData.js",
-        `import useSWR from "swr";
+      const hookContent = `import useSWR from "swr";
 
 export function useFetchData(url) {
   const { data, error } = useSWR(url);
   return { data, error };
-}`
-      );
+}`;
 
-      console.log("\n✅ SWR setup complete!");
+      fs.mkdirSync("src/hooks", { recursive: true });
+      fs.writeFileSync(useTypeScript ? "src/hooks/useFetchData.ts" : "src/hooks/useFetchData.js", hookContent);
+
+      spinner.succeed("SWR installed and configured successfully!");
     }
   }
 
-  // Folder structure setup
-  console.log("\n🗂 Setting up good folder structure...");
+
+
+  spinner.start("Setting up folder structure and React Router...");
   fs.mkdirSync("src/components", { recursive: true });
   fs.mkdirSync("src/pages", { recursive: true });
+  fs.mkdirSync("src/layouts", { recursive: true });
   fs.mkdirSync("src/hooks", { recursive: true });
-  fs.mkdirSync("src/store", { recursive: true });
+  fs.mkdirSync("src/utils", { recursive: true });
 
-  console.log("\n✨ Setup complete! Run the following commands to start your project:");
-  console.log(`\n📂 cd ${projectName}`);
-  console.log("🚀 npm run dev");
+  // Create layout components
+  const headerContent = `export default function Header() {
+  return (
+    <header className="bg-gray-800 text-white p-4">
+      <h1 className="text-2xl">My Awesome App</h1>
+    </header>
+  );
+}`;
+  fs.writeFileSync(`src/components/Header.${fileExtension}`, headerContent);
+
+  const sideMenuContent = `import { Link } from 'react-router-dom';
+
+export default function SideMenu() {
+  return (
+    <nav className="bg-gray-200 p-4 h-full">
+      <ul>
+        <li><Link to="/" className="block py-2">Home</Link></li>
+        <li><Link to="/about" className="block py-2">About</Link></li>
+        <li><Link to="/dashboard" className="block py-2">Dashboard</Link></li>
+      </ul>
+    </nav>
+  );
+}`;
+  fs.writeFileSync(`src/components/SideMenu.${fileExtension}`, sideMenuContent);
+
+  const layoutContent = `import Header from '../components/Header';
+import SideMenu from '../components/SideMenu';
+
+export default function Layout({ children }) {
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <div className="flex flex-1">
+        <SideMenu />
+        <main className="flex-1 p-4">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}`;
+  fs.writeFileSync(`src/layouts/Layout.${fileExtension}`, layoutContent);
+
+  // Create pages
+  const homePageContent = `export default function HomePage() {
+  return <h1 className="text-2xl">Welcome to the Home Page</h1>;
+}`;
+  fs.writeFileSync(`src/pages/HomePage.${fileExtension}`, homePageContent);
+
+  const aboutPageContent = `export default function AboutPage() {
+  return <h1 className="text-2xl">About Us</h1>;
+}`;
+  fs.writeFileSync(`src/pages/AboutPage.${fileExtension}`, aboutPageContent);
+
+  const dashboardPageContent = `export default function DashboardPage() {
+  return <h1 className="text-2xl">Dashboard (Protected Route)</h1>;
+}`;
+  fs.writeFileSync(`src/pages/DashboardPage.${fileExtension}`, dashboardPageContent);
+
+  // Create PrivateRoute component
+  const privateRouteContent = `import { Navigate } from 'react-router-dom';
+
+// This is a dummy authentication check. In a real app, you'd use a proper auth system.
+const isAuthenticated = () => {
+  return localStorage.getItem('token') !== null;
+};
+
+export default function PrivateRoute({ children }) {
+  return isAuthenticated() ? children : <Navigate to="/login" replace />;
+}`;
+  fs.writeFileSync(`src/components/PrivateRoute.${fileExtension}`, privateRouteContent);
+
+  // Set up React Router with layout
+  const appContent = `import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Layout from './layouts/Layout';
+import HomePage from './pages/HomePage';
+import AboutPage from './pages/AboutPage';
+import DashboardPage from './pages/DashboardPage';
+import PrivateRoute from './components/PrivateRoute';
+
+function App() {
+  return (
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <PrivateRoute>
+                <DashboardPage />
+              </PrivateRoute>
+            } 
+          />
+        </Routes>
+      </Layout>
+    </Router>
+  );
+}
+
+export default App;`;
+
+  fs.writeFileSync(`${useTypeScript ? "src/App.tsx" : "src/App.jsx"}`, appContent);
+
+  spinner.succeed("Folder structure, layout, and React Router set up successfully!");
+
+  console.log(chalk.green.bold("\n✨ Setup complete! Your awesome project is ready to go!"));
+  console.log(chalk.cyan("\nProject structure:"));
+  console.log(chalk.yellow(`
+  src/
+    ├── components/
+    │   ├── Header.${fileExtension}
+    │   ├── SideMenu.${fileExtension}
+    │   └── PrivateRoute.${fileExtension}
+    ├── layouts/
+    │   └── Layout.${fileExtension}
+    ├── pages/
+    │   ├── HomePage.${fileExtension}
+    │   ├── AboutPage.${fileExtension}
+    │   └── DashboardPage.${fileExtension}
+    ├── hooks/
+    ├── utils/
+    ├── App.${fileExtension}
+    └── index.css
+  `));
+
+  console.log(chalk.green.bold("\n✨ Setup complete! Your awesome project is ready to go!"));
+  console.log(chalk.cyan("\nRun the following commands to start your project:"));
+  console.log(chalk.yellow(`\n📂 cd ${projectName}`));
+  console.log(chalk.yellow("🚀 npm run dev"));
+
+  console.log(chalk.magenta("\nHappy coding! Remember: " + getRandomJoke()));
+  // fs.writeFileSync(useTypeScript ? "src/App.tsx" : "src/App.jsx", appContent);
+
+
+
 }
 
 createProject();
+
+
+
