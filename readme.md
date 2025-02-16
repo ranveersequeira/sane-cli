@@ -1,133 +1,36 @@
+---
 
-### `README.md`
+# Vite Sane CLI
 
-```markdown
-# React Project Setup CLI Tool
+Welcome to **Vite Sane CLI** – the tool for developers who are bored and scared to start a new step for their React application! Starting a new project can be terrifying (trust me, I get it). You sit there, wondering, "What am I getting myself into?" But fear not! With my sane defaults (and, let's be honest, **questionable** experience in the industry 😅), I've created this CLI to help you get up and running with a React app and start working **immediately**.
 
-## Overview
+It's like having a cheat code for your React development. You don’t need to worry about setting up configurations, it’s all set up for you – just focus on your code!
 
-Welcome to the React Project Setup CLI Tool! This tool will quickly create a React project with:
-- **Tailwind CSS** for styling.
-- **React Router** for navigation.
-- **Private Routes** for authenticated pages.
-- A basic layout with a **Header**, **SideMenu**, and **Main** content area.
+## Features
 
-### Features:
-- **Tailwind CSS** is configured out of the box.
-- **React Router** with **Private Routes** to protect authenticated pages.
-- A basic **Header** component and a **SideMenu** with placeholder items.
-- A **Main** content area that you can customize with children components.
+- **Tailwind CSS by default** (because who doesn’t love that sweet utility-first goodness? 😍)
+- **React** – The most popular library for building user interfaces.
+- **React Router DOM** – So you can navigate your app with ease.
+- **React Redux** – For state management like a pro (unless you prefer SWR or React Query for data fetching, then it’s up to you!).
+- Choose between **Ant Design 5** or **MUI** for your component library.
+- Data fetching setup with either **SWR** or **React Query** – because who has time for manual API calls?
+- Progressive improvements based on my own learning and growing with Vite! Expect updates as I get smarter about this tool.
 
-## Prerequisites
+## Why Vite Sane CLI?
 
-Before running this CLI tool, make sure you have the following installed:
+Let's face it – Create React App is dead. It’s like the old-school flip phone that made you "cool" for a while but now it's gathering dust in your drawer. With **Vite Sane CLI**, we’re bringing the **future** of React development into the present. Fast, efficient, and built for the modern web developer who just wants to **build**.
 
-- **Node.js** version 18 or higher.  
-  You can check your Node.js version by running `node -v`.  
-  If you don't have Node.js 18+, [download it here](https://nodejs.org/).
-  
-- **npm** (Node Package Manager) to install dependencies.  
-  You can check your npm version by running `npm -v`.  
-  If you don't have npm, install it along with Node.js.
+## Future Focus
 
-> **Pro tip:** If you are using `nvm` (Node Version Manager), you can easily switch between Node.js versions!
+- **Module Federation** – Let’s make your React app shareable with other projects!
+- **Extra Vite Configurations and Plugins** – For bigger, more complex projects.
+- **Enterprise-level Setup** – Because your code should be as scalable as your ambition.
 
 ---
 
-## How to Use
-
-1. **Install the CLI Tool**  
-   Clone this repository or install the CLI tool globally for easy access.
-
-   ```bash
-   git clone https://your-repository-link.git
-   cd react-project-cli
-   npm install -g
-   ```
-
-2. **Run the CLI Tool**  
-   To generate a new React project, simply run:
-
-   ```bash
-   vite-sane-cli <your-project-name>
-   ```
-
-   If no project name is provided, it will default to `my-app`.
-
+Joke on me: Starting a new project is like opening a mystery box – you have no idea what's inside, but you just hope it's not a bug-infested mess. 😅
 ---
 
-## Example Project Structure
-
-Once the tool runs, you'll have a project with the following structure:
-
-```
-/my-app
-  /src
-    /components
-      Header.js
-      SideMenu.js
-      Main.js
-    App.js
-  tailwind.config.js
-  vite.config.js
-  package.json
-  public/index.html
-```
-
-- **Header.js**: Contains a simple header layout.
-- **SideMenu.js**: Contains a basic side navigation menu.
-- **Main.js**: Displays the main content passed as children.
-- **App.js**: Sets up the router and includes a Private Route for authenticated users.
+Hope this helps you get started and reduces the “new project anxiety”! Now, go ahead and build something amazing – quickly and efficiently.
 
 ---
-
-## How Private Routes Work
-
-This tool includes a **PrivateRoute** component that protects routes from unauthorized access. You can customize the authentication logic inside `PrivateRoute.js`. For now, it's simply based on a dummy boolean value (`isAuthenticated`).
-
-```javascript
-const PrivateRoute = ({ element }) => {
-  const isAuthenticated = true; // Change this to real authentication logic
-  return isAuthenticated ? element : <h2>You need to log in to access this page.</h2>;
-};
-```
-
----
-
-## Troubleshooting
-
-If you run into any issues, here are a few things to check:
-1. Ensure you're running **Node.js 18+** and **npm**.
-2. Make sure all dependencies are installed correctly by running `npm install` in the project directory.
-3. Verify the `vite.config.js` file exists and is properly configured.
-
----
-
-## Jokes to Keep You Going
-
-- Why did the JavaScript developer go broke?  
-  Because he kept using `var` instead of `let` and `const`!
-
-- Why do developers prefer dark mode?  
-  Because light attracts bugs!
-
-- If a React developer falls in a forest and no one is around to hear it, does it still **re-render**?
-
----
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-Enjoy your new project! 😎
-```
-
----
-
-### Key Highlights:
-- **Node.js version 18+** and **npm** are clearly mentioned in the prerequisites.
-- The **CLI tool** instructions are clear and straightforward.
-- The **PrivateRoute** setup is explained.
-- **Witty jokes** are added for fun, and the whole README is concise and helpful.
